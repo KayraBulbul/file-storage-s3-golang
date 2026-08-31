@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"net/http"
@@ -80,7 +82,15 @@ func (cfg *apiConfig) handlerUploadThumbnail(w http.ResponseWriter, r *http.Requ
 	}
 
 	video.UpdatedAt = time.Now()
-	url := fmt.Sprintf("http://localhost:%s/assets/%v.%s", cfg.port, video.ID, mediaTypeSplit[len(mediaTypeSplit)-1])
+
+	key := make([]byte, 32)
+	_, err = rand.Read(key)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "error reading random", err)
+	}
+	encodedURLString := base64.URLEncoding.EncodeToString(key)
+
+	url := fmt.Sprintf("http://localhost:%s/assets/%v.%s", cfg.port, encodedURLString, mediaTypeSplit[len(mediaTypeSplit)-1])
 	video.ThumbnailURL = &url
 
 	err = cfg.db.UpdateVideo(video)
