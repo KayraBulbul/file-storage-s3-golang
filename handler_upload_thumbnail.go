@@ -87,6 +87,7 @@ func (cfg *apiConfig) handlerUploadThumbnail(w http.ResponseWriter, r *http.Requ
 	_, err = rand.Read(key)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "error reading random", err)
+		return
 	}
 	encodedURLString := base64.URLEncoding.EncodeToString(key)
 
